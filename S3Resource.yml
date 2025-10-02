@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: "Stack that will deploy an S3 bucket"
+
+Resources:
+  S3Bucket:
+    Type: 'AWS::S3::Bucket'
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: nwudo-bucket
+      PublicAccessBlockConfiguration: # Block public access is disabled
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: error.html
+
+  S3BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3Bucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Action: s3:GetObject
+            Effect: Allow
+            Principal: "*"
+            Resource: !Sub "${S3Bucket.Arn}/*"
+
+
+Outputs:
+  BucketArn:
+    Description: Returns the ARN of the specified bucket
+    Value: !GetAtt S3Bucket.Arn
+
+  WebsiteURL:
+    Description: Static website endpoint of the bucket
+    Value: !GetAtt S3Bucket.WebsiteURL
